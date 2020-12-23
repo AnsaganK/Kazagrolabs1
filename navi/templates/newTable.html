@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load mytags %}
+<style>
+
+.wrap{text-align: center;
+	width:100%;
+	display: flex;
+	color:#4f4f4f;
+}
+.whead{
+	border:1px solid #82afe7;
+	box-shadow:0px 0px 2px;
+	width:20%;
+	justify-content: center;
+	    display: flex;
+	    	margin:1px;
+border-size:5px;
+    align-items: center;
+}
+.wbody{
+	position: relative;
+	justify-content: center;
+	width:78%;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+.wtitle{
+font-size:20px;
+    margin:0 auto;
+}
+</style>
+<style>
+    ul{
+    list-style-type:circle;
+    padding-left:120px;
+    }
+    li{
+        padding-left:None;
+    }
+    ul:not(.browser-default)>li{
+        list-style-type:circle;
+    }
+.full{
+    background-color:#d2ffd2;
+}
+.notfull{
+    background-color:#ffd3d3cf;
+}
+</style>
+
+
+<header class="content_header">
+    <h1 class="content_title header_title">Прогресс проб</h1>
+</header>
+<!--
+<h3 class="content_title header_title" style="font-size:25px">Общий</h3>
+
+
+
+<table class="prop_table centered">
+    <thead>
+        <tr>
+            <th class="table_head">Клиент</th>
+            <th class="table_head">Всего</th>
+            <th class="table_head">Почвоотбор</th>
+            <th class="table_head">Пробоподготовка</th>
+            <th class="table_head">Лаборатория</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for client in clients %}
+
+                {% for sample in client.samples.all %}
+                <tr>
+                    <td>{{ client.name }}</td>
+                    <td>{{ sample.count }} проб, {{ sample.elements.all.count }} эл.</td>
+                    <td>{{ s|stSample:sample.pk }}
+                    </td>
+                    <td>{{ p|stSample:sample.pk }}</td>
+                    <td>{{ l|stSample:sample.pk }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+-->
+
+{% if detail %}
+<h3 class="content_title header_title" style="font-size:25px">Детальный</h3>
+    <table class="prop_table centered">
+    <thead>
+        <tr>
+            <th class="table_head">Клиент</th>
+            <th class="table_head">Всего</th>
+            <th class="table_head">Почвоотбор</th>
+            <th class="table_head">Пробоподготовка</th>
+            <th class="table_head">Лаборатория</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for client in clients %}
+
+                {% for sample in client.samples.all %}
+                <tr>
+                    <td>{{ client.name }}</td>
+                    <td>{{ sample.count }} проб, {{ sample.elements.all.count }} эл.</td>
+                    <td>{% for i in s|stSamples:sample.pk %}
+                            {{ i.countSamples }} <span style="color:gray;font-size: 10px;position: absolute;">({{ i.nowTime }})</span><br>
+                        {% endfor %}
+                    </td>
+                    <td>{% for i in p|stSamples:sample.pk %}
+                            {{ i.countSamples }} <span style="color:gray;font-size: 10px;position: absolute;">({{ i.nowTime }})</span><br>
+                        {% endfor %}
+                    </td>
+                    <td>{% for i in l|stSamples:sample.pk %}
+                            {{ i.countSamples }} <span style="color:gray;font-size: 10px;position: absolute;">({{ i.nowTime }})</span><br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<h3 class="content_title header_title" style="font-size:25px">Блочная модель</h3>
+
+<div  style="margin-bottom:30px">
+    <div style="display:flex;align-items: center;">
+    <div style="background-color:#82afe7; height:10px; width:70px;margin-right:20px"></div><span>Клиент | проб</span>
+</div>
+<div style="display:flex;align-items: center;">
+    <div style="background-color:red; height:10px; width:70px;margin-right:20px"></div><span>Проб | элементов</span>
+</div>
+<div style="display:flex;align-items: center;">
+    <div style="background-color:green; height:10px; width:70px;margin-right:20px"></div><span>Почвоотбор</span>
+</div>
+<div style="display:flex;align-items: center;">
+    <div style="background-color:yellow; height:10px; width:70px;margin-right:20px"></div><span>Пробоподготовка</span>
+</div>
+    <div style="display:flex;align-items: center;">
+    <div style="background-color:#c025bb; height:10px; width:70px;margin-right:20px"></div><span>Лаборатория</span>
+</div>
+    </div>
+{% for i in dic1 %}
+<div class="wrap">
+    <div class="whead" title="{% if i.3 %}{{ i.3 }}{% else %}Дата не выбрана{% endif %}">
+       <span class="wtitle"> {{ i|retList }}</span>
+    </div>
+    <div class="wbody">
+        {% for j in dic1|retDic:i %}
+
+        <div class="wrap">
+            <div class="whead {% if j.3 %}notfull {% else %}full  {% endif %}"  style="border-color:red" title="{{ j|retTime }}" >
+                <span class="wtitle" > {{ j|retList }}</span>
+            </div>
+            <div class="wbody">
+
+                {% for k in dic1|retDic:i|retDic:j %}
+
+                <div class="wrap">
+                    <div class="whead {% if k.3 %}notfull {% else %}full  {% endif %}" title="{{k|retTime}}" style="border-color:green" >
+                        <span class="wtitle"> {{ k|retList }}</span>
+                    </div>
+                    <div class="wbody">
+
+                        {% for l in dic1|retDic:i|retDic:j|retDic:k %}
+
+                        <div class="wrap">
+                            <div class="whead {% if l.3 %}notfull {% else %}full  {% endif %}" title="{{l|retTime}}" style="border-color:yellow" >
+                                <span class="wtitle"> {{ l|retList }}</span>
+                            </div>
+                            <div class="wbody">
+
+                                {% for p in dic1|retDic:i|retDic:j|retDic:k|retDic:l %}
+
+                                <div class="wrap">
+                                    <div class="whead {% if l.3 %}notfull {% else %}full  {% endif %}" title="{{ p.1 }}" style="border-color:#c025bb" >
+                                        <span class="wtitle"> {{ p.0 }}</span>
+                                    </div>
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+<div  style="margin-bottom:30px"></div>
+
+     {% endblock %}

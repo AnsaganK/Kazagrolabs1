@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+
+{% block content %}
+<h2 class="content_title form_add_title">Изменить данные</h2>
+<form class="form_add" action="{% url update s.pk %}" method="POST">
+    {% csrf_token %}
+    <label for="client_name">Имя клиента</label>
+                <select name="nameClient" class="form_add_select" id="client_name" onchange='NewSelect(this.options[this.selectedIndex].getAttribute("data-name"))'>
+                    {% for i in clients %}
+                        <option value="{{i.pk}}"  data-name="{{i.name}}" {% if i.name == client %} selected {% endif %}>{{i.name}}</option>
+                    {% endfor %}
+                </select>
+
+    <label for="samples">Какие пробы</label>
+               {% if title == 'Пробоподготовка' or title == 'Лаборатория' %}
+                    <label for="samples">Выберите одну из поступивших проб</label>
+                    <select name="selfParent" class="form_add_select" id="samples">
+                        {% for i in selfParents %}
+                            {% if i.samples.client.name == client %}
+                            <option value="{{i.pk}}" {% if i.pk == selfParent.pk  %}selected{% endif %}>{{i.nameClient}} ({{i.countSamples}} проб на {{ i.samples.elements.all.count }} эл.)</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <label for="samples">Какие пробы</label>
+                    <select name="samples" class="form_add_select" id="samples" required>
+                        {% for i in samples %}
+                            <option value="{{i.pk}}">{{i.client}} ({{i.count}} проб, {{i.elements.all.count}} эл.) </option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+    <label for="prob_count">Количество проб</label>
+    <input name="countSamples" type="number" class="input" id="prob_count" required value='{{ s.countSamples }}'>
+    <label for="prob_date">Дата</label>
+    <input name="date" type="date" class="input" id="prob_date" required value='{{s.date.year}}-{{s.date.month|validDate}}-{{s.date.day|validDate}}'>
+    <label for="prob_status">Статус</label>
+    <select name="status" id="prob_status" class="form_add_select">
+        <option value="Поступило" {% if s.status == 'Поступило' %} selected {% endif %}>Поступило</option>
+        <option value="В процессе" {% if s.status == 'В процессе' %} selected {% endif %}>В процессе</option>
+        <option value="Готово" {% if s.status == 'Готово' %} selected {% endif %}>Готово</option>
+    </select>
+    <button type="submit" class="form_add_btn">Отправить</button>
+</form>
+
+
+{% if title == 'Пробоподготовка' or title == 'Лаборатория' %}
+       <script type="text/javascript">
+var sayings = new Map();
+{% for i in clients %}
+sayings.set(
+    '{{i.name}}',
+        [
+    {% for j in selfParents %}
+    {% if j.nameClient.name == i.name %}
+        ["{{ j.nameClient }} ({{ j.countSamples }} проб на {{ j.samples.elements.all.count }} эл.)",{{ j.pk }}],
+        {% endif %}
+    {% endfor %}
+        ]
+);
+{% endfor %}
+function NewSelect(dName){
+    console.log(dName);
+    var arr = sayings.get(dName)
+    var oldSelect = document.getElementById("samples");
+    oldSelect.length = 0;
+    for (i=0; i<arr.length; i++){
+            text = arr[i][0];
+            value = arr[i][1];
+            var newOption = new Option(text, value);
+            oldSelect.options.add(newOption);
+    }
+}
+
+</script>
+       {% else %}
+<script type="text/javascript">
+var sayings = new Map();
+{% for i in clients %}
+sayings.set(
+    '{{i.name}}',
+        [
+    {% for j in i.samples.all %}
+        ["{{ j.client }} ({{ j.count }} проб, {{ j.elements.all|elName }} эл.)",{{ j.pk }}],
+    {% endfor %}
+        ]
+);
+{% endfor %}
+function NewSelect(dName){
+    console.log(dName);
+    var arr = sayings.get(dName)
+    var oldSelect = document.getElementById("samples");
+    oldSelect.length = 0;
+    for (i=0; i<arr.length; i++){
+            text = arr[i][0];
+            value = arr[i][1];
+            var newOption = new Option(text, value);
+            oldSelect.options.add(newOption);
+    }
+}
+
+
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+
+{% block content %}
+<header class="content_header">
+    <h1 class="content_title header_title">Корма</h1>
+</header>
+<h2 class="content_title form_add_title">Добавить корм</h2>
+            <form class="form_add" action="{% url 'addCorms' %}" method="POST" name="myForm">
+                {% csrf_token %}
+
+                <label for="client_name">Имя клиента</label>
+                <select name="client" class="form_add_select" id="client_name" name="allClients" onchange='NewSelect(this.options[this.selectedIndex].getAttribute("data-name"))'>
+                    {% for i in clients %}
+                        <option value="{{i.pk}}" data-name="{{i.name}}" {% if forloop.counter == 1 %} selected {% endif %}>{{i.name}}</option>
+                    {% endfor %}
+                </select>
+
+
+                <label for="parent">Дата начала</label>
+                <select name="parent" id="parent" class="form_add_select" onchange='ChangeSelect(this.options[this.selectedIndex].getAttribute("value"), this.options[this.selectedIndex].getAttribute("data-max"))'>
+                    <option value="">---</option>
+                    {% for i in selfParents %}
+                    <option value="{{i.pk}}" data-max="{{i.count}}">{{i.client}} ({{i.date}}, {{i.count}} ед.)</option>
+                    {% endfor %}
+                </select>
+                <label for="prob_count">Количество корма</label>
+                <input name="count" type="number" class="input" min="1" id="prob_count" required>
+
+
+                <label for="prob_date">Дата</label>
+                <input name="date" type="date" class="input" id="prob_date" required>
+
+                <label for="corm_status">Статус</label>
+                <select name="status" id="corm_status" class="form_add_select">
+                    <option value="Поступило">Поступило</option>
+                </select>
+
+                <button type="submit" class="form_add_btn">Добавить</button>
+            </form>
+<table class="prop_table centered">
+    <thead>
+        <tr>
+            <th class="table_head">Клиент</th>
+            <th class="table_head">Количество</th>
+            <th class="table_head">Дата</th>
+            <th class="table_head">Действие</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for corm in corms %}
+                <tr>
+                    <td>{{ corm.client }}</td>
+                    <td>{{ corm.count }}</td>
+                    <td>{{corm.date.year}}-{{corm.date.month|validDate}}-{{corm.date.day|validDate}} : {{ corm.pk|childDate|safe }}</td>
+                    <td><a href="{% url 'deleteCorms' corm.pk %}" class="table_action table_action_delete modal-trigger">Удалить</a></td>
+                </tr>
+        {% endfor %}
+    </tbody>
+</table>
+   <script type="text/javascript">
+
+
+
+
+var sayings = new Map();
+{% for i in clients %}
+sayings.set(
+    '{{i.name}}',
+        [
+    {% for j in allCorms %}
+    {% if j.client.name == i.name and j.status == 'Поступило' and j|childNot %}
+        ["{{j.client}} ({{j.date}}, {{j.count}} ед.)",{{ j.pk }},{{j.count}}],
+        {% endif %}
+    {% endfor %}
+        ]
+);
+{% endfor %}
+function NewSelect(dName){
+    console.log(dName);
+    var arr = sayings.get(dName)
+    var oldSelect = document.getElementById("parent");
+    oldSelect.length = 0;
+    var newOption = new Option('---','');
+    oldSelect.options.add(newOption);
+    for (i=0; i<arr.length; i++){
+            text = arr[i][0];
+            value = arr[i][1];
+            number = arr[i][2];
+            var newOption = new Option(text, value);
+            newOption.setAttribute('data-max',number);
+            oldSelect.options.add(newOption);
+    }
+
+
+    var select = document.getElementById("corm_status");
+    select.length = 0;
+    var newOption = new Option("Поступило", "Поступило");
+    select.options.add(newOption);
+
+    var element = document.getElementById("prob_count");
+       element.setAttribute('max',oldSelect[0].getAttribute("data-max"))
+}
+
+function ChangeSelect(val, max){
+var select = document.getElementById("corm_status");
+select.length = 0;
+    if(val == ''){
+           var newOption = new Option("Поступило", "Поступило");
+            select.options.add(newOption);
+    }else{
+            document.getElementById("prob_count").value=max;
+            var newOption = new Option("Готово", "Готово");
+            select.options.add(newOption);
+    }
+}
+</script>
+{% include "pagination.html" with page=corms %}
+
+{% endblock %}

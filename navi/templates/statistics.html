@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load mytags %}
+
+{% block st %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+{% endblock %}
+{% block content %}
+<header class="content_header">
+    <h4 class="content_title header_title">Данные за последние {{day}} дней</h4>
+</header>
+<select style="display:block" onchange="location.href=this.value">
+    <option value="?day=5" {% if request.GET.day == '5' %} selected {% endif %}>За 5 дней</option>
+    <option value="?day=7" {% if request.GET.day == '7' %} selected {% endif %}>За 7 дней</option>
+    <option value="?day=14" {% if request.GET.day == '14' %} selected {% endif %}>За 14 дней</option>
+    <option value="?day=30" {% if request.GET.day == None or request.GET.day == '30' %} selected {% endif %}>За 30 дней</option>
+    <option value="?day=60" {% if request.GET.day == '60' %} selected {% endif %}>За 60 дней</option>
+</select>
+<table class="prop_table" style>
+    <thead>
+        <tr>
+            <th class="table_head">Статус</th>
+            <th class="table_head">Почвоотбор</th>
+            <th class="table_head">Пробоподготовка</th>
+            <th class="table_head">Лаборатория</th>
+            <th class="table_head">Агрохимия</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>Поступило</td>
+            <td>{{s1}} - {{s1|percent:s}}</td>
+            <td>{{p1}} - {{p1|percent:p}}</td>
+            <td>{{l1}} - {{l1|percent:l}}</td>
+            <td>{{a1}} - {{a1|percent:a}}</td>
+        </tr>
+        <tr>
+            <td>В процессе</td>
+            <td>{{s2}} - {{s2|percent:s}}</td>
+            <td>{{p2}} - {{p2|percent:p}}</td>
+            <td>{{l2}} - {{l2|percent:l}}</td>
+            <td>{{a2}} - {{a2|percent:a}}</td>
+        </tr>
+        <tr>
+            <td>Готово</td>
+            <td>{{s3}} - {{s3|percent:s}}</td>
+            <td>{{p3}} - {{p3|percent:p}}</td>
+            <td>{{l3}} - {{l3|percent:l}}</td>
+            <td>{{a3}} - {{a3|percent:a}}</td>
+        </tr>
+        <tr>
+            <td>Всего</td>
+            <td>{{s}} - {{s|percent:s}}</td>
+            <td>{{p}} - {{p|percent:p}}</td>
+            <td>{{l}} - {{l|percent:l}}</td>
+            <td>{{a}} - {{a|percent:a}}</td>
+        </tr>
+    </tbody>
+</table>
+<h3>Почвоотбор</h3>
+<canvas id="myChart1"></canvas>
+
+<h3>Пробоподготовка</h3>
+<canvas id="myChart2"></canvas>
+
+<h3>Лаборатория</h3>
+<canvas id="myChart3"></canvas>
+
+<h3>Агрохимия</h3>
+<canvas id="myChart4"></canvas>
+
+<script>
+
+    var ctx1 = document.getElementById('myChart1').getContext('2d');
+    var myChart1 = new Chart(
+        ctx1,
+        { type: 'line',
+         data: { labels: [ {% for i in xCorS %} '{{i}}' ,{% endfor %} ],
+                datasets: [
+
+                    { label: 'Поступило',
+                    data: [ {% for i in yCor1S %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(153,255,51,0.4)" },
+
+                    { label: 'В процессе',
+                      data: [{% for i in yCor2S %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(255,153,0,0.4)" },
+
+                    { label: 'Готово',
+                    data: [ {% for i in yCor3S %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(50,177,215,0.4)" }
+
+                    ]
+                }
+        });
+        var ctx2 = document.getElementById('myChart2').getContext('2d');
+    var myChart2 = new Chart(
+        ctx2,
+        { type: 'line',
+         data: { labels: [ {% for i in xCorP %} '{{i}}' ,{% endfor %} ],
+                datasets: [
+
+                    { label: 'Поступило',
+                    data: [ {% for i in yCor1P %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(153,255,51,0.4)" },
+
+                    { label: 'В процессе',
+                      data: [{% for i in yCor2P %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(255,153,0,0.4)" },
+
+                    { label: 'Готово',
+                    data: [ {% for i in yCor3P %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(50,177,215,0.4)" }
+
+                    ]
+                }
+        });
+        var ctx3 = document.getElementById('myChart3').getContext('2d');
+    var myChart3 = new Chart(
+        ctx3,
+        { type: 'line',
+         data: { labels: [ {% for i in xCorL %} '{{i}}' ,{% endfor %} ],
+                datasets: [
+
+                    { label: 'Поступило',
+                    data: [ {% for i in yCor1L %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(153,255,51,0.4)" },
+
+                    { label: 'В процессе',
+                      data: [{% for i in yCor2L %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(255,153,0,0.4)" },
+
+                    { label: 'Готово',
+                    data: [ {% for i in yCor3L %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(50,177,215,0.4)" }
+
+                    ]
+                }
+        });
+        var ctx4 = document.getElementById('myChart4').getContext('2d');
+    var myChart4 = new Chart(
+        ctx4,
+        { type: 'line',
+         data: { labels: [ {% for i in xCorA %} '{{i}}' ,{% endfor %} ],
+                datasets: [
+
+                    { label: 'Поступило',
+                    data: [ {% for i in yCor1A %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(153,255,51,0.4)" },
+
+                    { label: 'В процессе',
+                      data: [{% for i in yCor2A %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(255,153,0,0.4)" },
+
+                    { label: 'Готово',
+                    data: [ {% for i in yCor3A %} {{i}},{% endfor %} ],
+                      backgroundColor: "rgba(50,177,215,0.4)" }
+
+                    ]
+                }
+        });
+</script>
+
+{% endblock %}

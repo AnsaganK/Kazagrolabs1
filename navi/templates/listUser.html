@@ -1,0 +1,32 @@
+       {% extends 'base.html' %}
+       {% load mytags %}
+       {% block content %}
+            <header class="content_header">
+                <h1 class="content_title header_title">{{ title }}</h1>
+            </header>
+            <table class="prop_table centered">
+                <thead>
+                    <tr>
+                        <th class="table_head">Номер</th>
+                        <th class="table_head action_2">Логин</th>
+                        <th class="table_head action_3">Группы</th>
+                        <th class="table_head ">Действие</th>
+                    </tr>
+                </thead>
+
+                <tbody class="table_body">
+                    {% for i in info %}
+                    <tr>
+                        <td>{{ forloop.counter}}</td>
+                        <td><a href="{% url 'zhournal' i.1 %}">{{ i.0 }}</a></td>
+                        <td>{% for j in info|retDic:i %} {{ j }}, {% endfor %}</td>
+                        <td>
+                                <a href="{% url 'deleteUser' i.1 %}" class="table_action table_action_delete modal-trigger">Delete</a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% endblock %}

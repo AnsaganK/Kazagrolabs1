@@ -1,0 +1,197 @@
+       {% extends 'base.html' %}
+       {% load mytags %}
+       {% block content %}
+
+            <header class="content_header">
+                <h1 class="content_title header_title">{{ title }}</h1>
+            </header>
+            <table class="prop_table centered">
+                <thead>
+                    <tr>
+                        <th class="table_head">Номер</th>
+                        <th class="table_head action_2">Название клиента</th>
+                        <th class="table_head action_3">Вид пробы</th>
+                        <th class="table_head action_4">Количество проб</th>
+                        {% if title == 'Агрохим' %}<th class="table_head action_5"><span>
+         Дата(Поступило)
+         <i class="small material-icons table_icon">expand_more</i>
+</span></th>{% endif %}
+                        <th class="table_head action_5"><span>
+         Дата(Готово)
+         <i class="small material-icons table_icon">expand_more</i>
+</span></th>
+                        <th class="table_head action_2">Статус</th>
+                        {% if hasGroup %}<th class="table_head">Действие</th>{% endif %}
+                    </tr>
+                </thead>
+
+                <tbody class="table_body">
+                    {% for i in info %}
+                    <tr>
+                        <td>{{ forloop.counter | count:pg }}</td>
+                        <td><a href="/{{update}}/{{ i.pk }}" class="table_action" style="
+                                margin-right: 3px;
+                            ">{{ i.nameClient }}</a></td>
+                        {% if i.selfParent %}
+                        <td>Принято:{{ i.selfParent.parent.countSamples }}</td>
+                        {% else %}
+                        <td>{{ i.samples }}</td>
+                        {% endif %}
+                        <td>{{ i.countSamples }}</td>
+                        {% if title == 'Агрохим' %}
+                        <td>
+                            {% if i.samples.date %}{{ i.samples.date.day|validDate }}-{{ i.samples.date.month|validDate }}-{{ i.samples.date.year }}{% else %}Дата не выбрана{% endif %}
+                        </td>
+                        {% endif %}
+                        <td>{{ i.date.day|validDate }}-{{ i.date.month|validDate }}-{{ i.date.year }}</td>
+                        <td>{{ i.status }}</td>
+                        {% if hasGroup %}
+                        <td>
+                            <div>
+                                <a href="{% url delete i.pk %}" class="table_action table_action_delete modal-trigger">Delete</a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+{% include "pagination.html" with page=info %}
+       {% if hasGroup %}
+            <h2 class="content_title form_add_title">Добавить продукт</h2>
+            <form class="form_add" action="{% url action %}" method="POST" name="myForm">
+                {% csrf_token %}
+
+                <label for="client_name">Имя клиента</label>
+                <select name="nameClient" class="form_add_select" id="client_name" name="allClients" onchange='NewSelect(this.options[this.selectedIndex].getAttribute("data-name"))'>
+                    {% for i in clients %}
+
+                        <option value="{{i.pk}}" data-name="{{i.name}}" {% if forloop.counter == 1 %} selected {% endif %}>{{i.name}}</option>
+                    {% endfor %}
+                </select>
+                {% if title == 'Пробоподготовка' or title == 'Лаборатория' %}
+                    <label for="samples">Выберите одну из поступивших проб</label>
+                    <select name="selfParent" class="form_add_select" id="samples" onchange='MaxL(this.options[this.selectedIndex].getAttribute("data-max"))'>
+                        {% for i in selfParent %}
+                            <option value="{{i.pk}}" data-max="{{i.countSamples|limitMax:i.selfChildren.all}}">{{i.nameClient}} ({{i.countSamples}} проб на {{ i.samples.elements.all.count }} эл.) | ост.:{{i.countSamples|limitMax:i.selfChildren.all}}</option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <label for="samples">Какие пробы</label>
+                    <select name="samples" class="form_add_select" id="samples" onchange='MaxL(this.options[this.selectedIndex].getAttribute("data-max"))'>
+                        {% for i in client.samples.all %}
+                            <option value="{{i.pk}}" data-max={% if title == "Почвоотбор" %}{{ i|sampleSelection }}{% else %}{{ i|sampleAgrohym }}{% endif %}>{{i.client}} ({{i.count}} проб, {{i.elements.all.count}} эл.) | Ост.:{% if title == "Почвоотбор" %}{{ i|sampleSelection }}{% else %}{{ i|sampleAgrohym }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+                
+                <label for="prob_count">Количество проб</label>
+                <input name="countSamples" type="number" class="input" min="1" id="prob_count" required>
+                <label for="prob_date">Дата</label>
+                <input name="date" type="date" class="input" id="prob_date" required>
+
+                <label for="prob_status">Статус</label>
+                <select name="status" id="prob_status" class="form_add_select">
+                    <option value="Поступило">Поступило</option>
+                    <option value="В процессе">В процессе</option>
+                    <option value="Готово" {% if title == 'Пробоподготовка' or title == 'Лаборатория' %}selected{% endif %}>Готово</option>
+                </select>
+
+                <button type="submit" class="form_add_btn">Добавить</button>
+            </form>
+<div class="selection"></div>
+       {% endif %}
+
+
+
+<script>
+var n = document.getElementById("samples").options[0].getAttribute("data-max");
+
+       var element = document.getElementById("prob_count");
+       element.setAttribute('max',n);
+
+function MaxL(number){
+        var element = document.getElementById("prob_count");
+       element.setAttribute('max',number);
+       var inp = document.getElementById("test5");
+       inp.setAttribute('max',number)
+       }
+
+       </script>
+ {% if title == 'Пробоподготовка' or title == 'Лаборатория' %}
+       <script type="text/javascript">
+
+
+
+
+var sayings = new Map();
+{% for i in clients %}
+sayings.set(
+    '{{i.name}}',
+        [
+    {% for j in selfParents %}
+    {% if j.nameClient.name == i.name %}
+        ["{{ j.nameClient }} ({{ j.countSamples }} проб на {{ j.samples.elements.all.count }} эл.) | ост.:{{j.countSamples|limitMax:j.selfChildren.all}}",{{ j.pk }},{{j.countSamples|limitMax:j.selfChildren.all}}],
+        {% endif %}
+    {% endfor %}
+        ]
+);
+{% endfor %}
+function NewSelect(dName){
+    console.log(dName);
+    var arr = sayings.get(dName)
+    var oldSelect = document.getElementById("samples");
+    oldSelect.length = 0;
+    for (i=0; i<arr.length; i++){
+            text = arr[i][0];
+            value = arr[i][1];
+            number = arr[i][2];
+            var newOption = new Option(text, value);
+            newOption.setAttribute('data-max',number);
+            oldSelect.options.add(newOption);
+
+    }
+    var element = document.getElementById("prob_count");
+       element.setAttribute('max',oldSelect[0].getAttribute("data-max"));
+       var inp = document.getElementById("test5");
+       inp.setAttribute('max',oldSelect[0].getAttribute("data-max"))
+}
+
+</script>
+
+
+       {% else %}
+<script type="text/javascript">
+var sayings = new Map();
+{% for i in clients %}
+sayings.set(
+    '{{i.name}}',
+        [
+    {% for j in i.samples.all %}
+        ["{{ j.client }} ({{ j.count }} проб, {{ j.elements.all|elName }} эл.) | Ост.:{% if title == "Почвоотбор" %}{{ j|sampleSelection }}{% else %}{{ j|sampleAgrohym }}{% endif %}",{{ j.pk }}, {% if title == "Почвоотбор" %}{{ j|sampleSelection }}{% else %}{{ j|sampleAgrohym }}{% endif %}],
+    {% endfor %}
+        ]
+);
+{% endfor %}
+function NewSelect(dName){
+    console.log(dName);
+    var arr = sayings.get(dName)
+    var oldSelect = document.getElementById("samples");
+    oldSelect.length = 0;
+    for (i=0; i<arr.length; i++){
+            text = arr[i][0];
+            value = arr[i][1];
+            number = arr[i][2];
+            var newOption = new Option(text, value);
+            newOption.setAttribute('data-max',number);
+            oldSelect.options.add(newOption);
+    }
+    var element = document.getElementById("prob_count");
+       element.setAttribute('max',oldSelect[0].getAttribute("data-max"))
+
+}
+
+
+</script>
+       {% endif %}
+            {% endblock %}

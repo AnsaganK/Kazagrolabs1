@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load mytags %}
+
+<h4>{{ user.username }}  ({{ user.first_name }} {{ user.last_name }})</h4>
+<ul>
+{% for i in activity %}
+    <li style="display:flex; justify-content:space-between; width:80%;line-height:2;"><span>{{ i.name }}</span> <span>{{ i.time }}</span></li>
+    {% empty %}
+    <span style="color:gray;">Данный журнал пока пуст</span>
+{% endfor %}
+<ul>
+    {% include "pagination.html" with page=activity %}
+{% endblock %}

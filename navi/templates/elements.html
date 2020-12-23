@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+
+{% block content %}
+<div style="display:flex;flex-wrap:wrap">
+<div style="margin-right:100px">
+<h2 class="content_title form_add_title">Добавить элемент</h2>
+<form action="{% url 'addElement' %}" class="form_add" method="post">
+    {% csrf_token %}
+    <label for="prob_count">Название элемента</label>
+    <input name="name" type="text" class="input" id="prob_count" required>
+    <button type="submit" class="form_add_btn">Добавить</button>
+</form>
+</div>
+<div style="height:335px;">
+    <h2 class="content_title form_add_title">Изменить элемент</h2>
+<form action="{% url 'updateElement' %}" class="form_add" method="post">
+    {% csrf_token %}
+    <label for="oldName">Прежнее название</label>
+    <select name="oldName" id="oldName">
+        {% for i in elements %}
+        <option value="{{ i.pk }}">{{ i.name }}
+        {% endfor %}
+    </select>
+
+    <label for="newName">Новое название</label>
+    <input name="name" type="text" class="input" id="newName" required>
+    <button type="submit" class="form_add_btn">Изменить</button>
+</form>
+</div></div>
+<header class="content_header" style="
+    max-width: 300px;
+">
+                <h1 class="content_title header_title">Элементы</h1>
+            </header>
+
+<table class="prop_table centered" style="max-width:300px">
+                <thead>
+                    <tr>
+                        <th class="table_head">Номер</th>
+                        <th class="table_head action_2">Название элемента</th>
+                        <th class="table_head">Действие</th>
+                    </tr>
+                </thead>
+
+                <tbody class="table_body">
+                    {% for i in elements %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.name }}</td>
+
+                        <td>
+                                <a href="{% url 'deleteElement' i.pk %}" class="table_action table_action_delete modal-trigger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+
+{% endblock %}

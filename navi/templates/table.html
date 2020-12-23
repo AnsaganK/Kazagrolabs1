@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'js/libs/bootstrap-grid.css' %}">
+    <link rel="stylesheet" href="{% static 'js/libs/normalize.css' %}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<style>
+    .generalTable{
+        font-family:'Helvetica';
+    }
+</style>
+</head>
+{% load mytags %}
+<body>
+    <!-- {{time}} -->
+<table class="prop_table centered generalTable" style='height:100vh; font-size: 40px;'>
+    <thead>
+        <tr>
+            <th class="table_head">Статус</th>
+            <th class="table_head">Почвоотбор</th>
+            <th class="table_head">Пробоподготовка</th>
+            <th class="table_head">Лаборатория</th>
+            <th class="table_head">Агрохимия</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>Поступило</td>
+            <td>{{s1}}</td>
+            <td>{{p1}}</td>
+            <td>{{l1}}</td>
+            <td>{{a1}}</td>
+        </tr>
+        <tr>
+            <td>В процессе</td>
+            <td>{{s2|isZero}}</td>
+            <td>{{p2|isZero}}</td>
+            <td>{{l2|isZero}}</td>
+            <td>{{a2|isZero}}</td>
+        </tr>
+        <tr>
+            <td>Готово</td>
+            <td>{{s3}}</td>
+            <td>{{p3}}</td>
+            <td>{{l3}}</td>
+            <td>{{a3}}</td>
+        </tr>
+        <tr>
+            <td>Всего</td>
+            <td>{{s}}</td>
+            <td>{{p}}</td>
+            <td>{{l}}</td>
+            <td>{{a}}</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

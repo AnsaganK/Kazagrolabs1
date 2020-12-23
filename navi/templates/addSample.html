@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+
+{% block content %}
+
+<h2 class="content_title form_add_title">Изменить данные</h2>
+<form class="form_add" action method="POST">
+    {% csrf_token %}
+    <label for="client_name">Имя клиента</label>
+                <select name="client" class="form_add_select" id="client_name">
+                    {% for i in clients %}
+                        <option value="{{i.pk}}" {% if i.name == client %} selected {% endif %}>{{i.name}}</option>
+                    {% endfor %}
+                </select>
+
+    <label for="count">Количество</label>
+    <input type="text" name="count" id="count">
+
+    <label for="elements">Какие элементы</label>
+                <select name="elements" class="form_add_select" id="elements">
+                    {% for i in elements %}
+                        <option value="{{i.pk}}"></option>
+                    {% endfor %}
+                </select>
+    <button type="submit" class="form_add_btn">Отправить</button>
+</form>
+
+{% endblock %}

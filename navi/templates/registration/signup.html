@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .counter
+{
+    color:white;
+      display: inline-block;
+    width: 50px;
+    font-size:30px;
+    height: 50px;
+    background-color: #6fffa2;
+    border-radius: 100px;
+    line-height: 45px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.counter:hover
+{
+  cursor: pointer;
+  user-select:none;
+}
+.del{
+    background-color: #f13c3c;
+}
+.element{
+width:40%;
+margin:10px;
+}
+select{
+height:35px;
+
+}
+#profile{
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+}
+</style>
+<div class="content">
+    <header class="content_header">
+        <h1 class="content_title header_title">Добавить пользователя</h1>
+    </header>
+    <form class="form_add form_add_user" action="{% url 'addUser' %}" method="POST">
+        {% csrf_token %}
+        {% if error %}
+            <p style="color:red">Пароли не совпадают</p>
+        {% endif %}
+        {% if error2 %}
+            <p style="color:red">В базе уже есть пользователь с таким логином</p>
+        {% endif %}
+        <label for="firstname">Имя</label>
+        <input type="text" class="input" id="firstname" name="first_name" placeholder="Введите имя">
+
+        <label for="lastname">Фамилия</label>
+        <input type="text" class="input" id="lastname" name="last_name" placeholder="Введите фамилию">
+
+
+        <label for="client_name">Login</label>
+        <input type="text" class="input" id="client_name" name="username" placeholder="Введите логин">
+
+        <label for="password">Пароль</label>
+        <input type="password" class="input" id="password" name = "password1" placeholder="Введите пароль">
+
+        <label for="password_try">Повторите пароль</label>
+        <input type="password" class="input" id="password_try" name = "password2" placeholder="Повторите пароль">
+        <div class="counter add" onclick="addInput()">+</div>
+      <div class="counter del" onclick="delInput()">-</div>
+<div id="profile">
+    <div class="element">
+        <select id="prob_status" name="groups" style="height:35px" class="form_add_select form_add_select_user" >
+            {% for group in groups %}
+                <option value="{{group.pk}}">{{group.name}}</option>
+            {% endfor %}
+        </select>
+        </div>
+    </div>
+        <button type="submit" class="form_add_btn">Добавить</button>
+    </form>
+</div>
+</div>
+<script>
+    var x = 0;
+function addInput() {
+if (x<{{groups.count}}-1){
+  var profile = document.getElementById('profile');
+  var div = document.createElement('div');
+  div.id = 'input' + ++x;
+  div.classList.add('element');
+  div.innerHTML = '<select id="prob_status" name="groups" style="height:35px" class="form_add_select form_add_select_user" >{% for group in groups %}<option value="{{group.pk}}">{{group.name}}</option>{% endfor %}</select>';
+  profile.appendChild(div);
+}else{
+alert('Вы достигли максимума доступных групп');
+}
+}
+function delInput() {
+  var div = document.getElementById('input' + x);
+  div.remove();
+  --x;
+}
+</script>
+<script>
+
+        let btn = document.querySelector(".form_add_btn_user")
+
+        btn.addEventListener("click", (e) => {
+            e.preventDefault()
+            let form = document.querySelector(".form_add_user");
+            let password = document.querySelector("#password").value
+            let password2 = document.querySelector("#password2").value
+
+            if(password !== password2) {
+                let span = document.querySelector(".eject_form");
+                span.innerText = "Пароли не совпадают"
+            } else {
+                form.submit()
+            }
+        })
+    </script>
+     {% endblock %}

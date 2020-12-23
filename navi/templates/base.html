@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'js/libs/bootstrap-grid.css' %}">
+    <link rel="stylesheet" href="{% static 'js/libs/normalize.css' %}">
+
+
+    {% block st %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header_container">
+            <a href="#" class="logo">
+                KazAgroLab
+            </a>
+            <span class="header_btn logout">
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="header_btn logout">
+                Выход
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="header_btn logout">
+                Вход
+            </a>
+            {% endif %}
+            </span>
+            <i class="small material-icons header_burger">menu</i>
+        </div>
+    </header>
+    <div class="wrapper">
+        <div class="collection_wrapper">
+            <div class="collection">
+                <a href="{% url 'general' %}" class="collection-item">Общий</a>
+                <a href="{% url 'table' %}" target="_blank". class="collection-item">Таблица</a>
+                <a href="{% url 'statistics' %}" class="collection-item">Статистика</a>
+                <span class="collection-item title">Этапы</span>
+            <div class="collection">
+                <a href="{% url 'selection' %}" class="collection-item">Почвоотбор</a>
+                <a href="{% url 'preparation' %}" class="collection-item">Пробоподготовка</a>
+                <a href="{% url 'laboratory' %}" class="collection-item">Лаборатория</a>
+                <a href="{% url 'agrohym' %}" class="collection-item">Агрохимия</a>
+            </div>
+                <a href="{% url 'archiveAgroHym' %}" class="collection-item">Архив(Агрохимия)</a>
+                <a href="{% url 'corms' %}" class="collection-item">Корма</a>
+            </div>
+            {% if 'Админ' in userGroups %}
+            <span class="collection-item title">Клиенты</span>
+            <div class="collection">
+                <a href="{% url 'listElement' %}" class="collection-item">Элементы</a>
+                <a href="{% url 'clients' %}" class="collection-item">Список клиентов(Почвоотбор)</a>
+                <a href="{% url 'clientsCorms' %}" class="collection-item">Список клиентов(Корма)</a>
+                <a href="{% url 'samples' %}" class="collection-item">Пробы</a>
+                <a href="{% url 'newTable' %}" class="collection-item">Таблица прогресса</a>
+            </div>
+
+            <span class="collection-item title">Пользователи</span>
+            <div class="collection">
+                <a href="{% url 'signup' %}" class="collection-item">Добавить</a>
+                <a href="{% url 'listUser' %}" class="collection-item">Список</a>
+            </div>
+            {% endif %}
+
+            {% block sidebar %}
+            {% endblock %}
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        const init = () => {
+    let tableHeads = document.querySelectorAll(".table_head")
+    let table_body = document.querySelector(".table_body")
+    let table_body_item = document.querySelectorAll(".table_body tr")
+
+    let delete_btn_arr = document.querySelectorAll(".table_action_delete");
+
+    let isCountProb = false
+
+    tableHeads.forEach(element => {
+        element.addEventListener("click", (e) => {
+            let className = e.target.className
+            if (className.includes("action")) {
+                let arr = className.split("_");
+                let action = arr[arr.length - 1]
+                console.log(action)
+                reRenderTable(action)
+            }
+        })
+    });
+
+    const reRenderTable = (action) => {
+        let count_item = 0;
+        let item_data = []
+        let max = 0;
+        let min = 0;
+
+        let table_items = table_body_item;
+        table_body_item.forEach(element => {
+            element.remove()
+        });
+
+        switch (action) {
+
+            case "2": {
+
+                table_body_item.forEach(element => {
+                    item_data.push(element.cells[1].innerText.toLowerCase())
+                });
+
+                let sorted = item_data.sort()
+
+                if (isCountProb) {
+                    sorted.reverse().forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[1].innerText
+                            if (itemText.toLowerCase() == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+                    isCountProb = !isCountProb
+                } else {
+                    sorted.forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[1].innerText
+                            if (itemText.toLowerCase() == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+                    isCountProb = !isCountProb
+                }
+
+                break;
+            }
+
+            case "3": {
+
+                table_body_item.forEach(element => {
+                    item_data.push(element.cells[2].innerText)
+                });
+
+                let sorted = item_data.sort((a, b) => {
+                    return a - b
+                })
+
+                if (isCountProb) {
+
+                    isCountProb = !isCountProb
+                    sorted.reverse().forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[2].innerText
+                            if (itemText == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+
+                } else {
+                    sorted.forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[2].innerText
+                            if (itemText == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+                    isCountProb = !isCountProb
+                }
+
+                break;
+            }
+            case "4": {
+
+                let day, month, year;
+                let dmy = []
+                let itemCount = table_body_item.length
+
+                table_body_item.forEach(element => {
+                    item_data.push(element.cells[3].innerText.toLowerCase())
+                });
+
+                u_item_data = item_data.map(item => {
+                    debugger
+                    let itemArr = item.split("-")
+                    let newItem = "" + itemArr[2] + "-" + itemArr[1] + "-" + itemArr[0]
+                    return newItem
+                })
+
+                u_item_data.forEach(element => {
+                    console.log(element)
+                });
+
+                let sorted = u_item_data.sort((a, b) => {
+                    return new Date(b) - new Date(a)
+                })
+
+                if (isCountProb) {
+                    debugger
+                    isCountProb = !isCountProb
+                    sorted.reverse().forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[3].innerText.split("-")
+                            let newItemText = itemText[2] + "-" + itemText[1] + "-" + itemText[0]
+                            if (newItemText == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+
+                } else {
+                    sorted.forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[3].innerText.split("-")
+                            let newItemText = itemText[2] + "-" + itemText[1] + "-" + itemText[0]
+                            if (newItemText == element) {
+                                table_body.appendChild(el)
+                            }
+                            debugger
+                        })
+                    })
+                    isCountProb = !isCountProb
+                    debugger
+                }
+
+                break;
+            }
+            case "5": {
+
+                table_body_item.forEach(element => {
+                    item_data.push(element.cells[4].innerText.toLowerCase())
+                });
+
+                let sorted = item_data.sort()
+
+                if (isCountProb) {
+                    sorted.reverse().forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[4].innerText
+                            if (itemText.toLowerCase() == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+                    isCountProb = !isCountProb
+                } else {
+                    sorted.forEach(element => {
+                        table_items.forEach(el => {
+                            let itemText = el.cells[4].innerText
+                            if (itemText.toLowerCase() == element) {
+                                table_body.appendChild(el)
+                            }
+                        })
+                    })
+                    isCountProb = !isCountProb
+                }
+
+                break;
+            }
+            default: {
+                console.log("default")
+            }
+        }
+
+        return null
+    }
+
+    delete_btn_arr.forEach(element => {
+        element.addEventListener("click", () => {
+            let e = element.parentElement.parentElement.parentElement
+            deleteItem(e)
+        })
+    });
+
+    const deleteItem = (e) => {
+
+        let deleteBtn = document.querySelector(".delete_table_item")
+        deleteBtn.addEventListener("click", () => {
+            e.remove()
+        })
+
+    }
+}
+
+window.onload = function () {
+    init();
+};
+    </script>
+    <script>
+
+        var isActive = false;
+        var collection = document.querySelector(".collection_wrapper");
+        var menu_btn = document.querySelector(".header_burger");
+
+        menu_btn.addEventListener("click", function () {
+            isActive ?
+                collection.classList.remove("show_el") :
+                collection.classList.add("show_el")
+            isActive = !isActive;
+        })
+    </script>
+<script>
+        var modal = document.querySelector(".modal");
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.modal');
+            var elem = document.querySelector('.modal');
+            var instances = M.Modal.init(elems);
+        });
+    </script>
+
+</body>
+
+</html>

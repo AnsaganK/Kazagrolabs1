@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load mytags %}
+<header class="content_header">
+    <h1 class="content_title header_title">Общий кабинет</h1>
+</header>
+<table class="prop_table centered">
+    <thead>
+        <tr>
+            <th class="table_head">Статус</th>
+            <th class="table_head">Почвоотбор</th>
+            <th class="table_head">Пробоподготовка</th>
+            <th class="table_head">Лаборатория</th>
+            <th class="table_head">Агрохимия</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>Поступило</td>
+            <td>{{s1}}</td>
+            <td>{{p1}}</td>
+            <td>{{l1}}</td>
+            <td>{{a1}}</td>
+        </tr>
+        <tr>
+            <td>В процессе</td>
+            <td>{{s2|isZero}}</td>
+            <td>{{p2|isZero}}</td>
+            <td>{{l2|isZero}}</td>
+            <td>{{a2|isZero}}</td>
+        </tr>
+        <tr>
+            <td>Готово</td>
+            <td>{{s3}}</td>
+            <td>{{p3}}</td>
+            <td>{{l3}}</td>
+            <td>{{a3}}</td>
+        </tr>
+        <tr>
+            <td>Всего</td>
+            <td>{{s}}</td>
+            <td>{{p}}</td>
+            <td>{{l}}</td>
+            <td>{{a}}</td>
+        </tr>
+    </tbody>
+</table>
+
+     {% endblock %}

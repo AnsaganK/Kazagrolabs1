@@ -1,0 +1,49 @@
+       {% extends 'base.html' %}
+       {% load mytags %}
+       {% block content %}
+            <header class="content_header">
+                <h1 class="content_title header_title">{{ title }}</h1>
+            </header>
+            <table class="prop_table centered">
+                <thead>
+                    <tr>
+                        <th class="table_head">Номер</th>
+                        <th class="table_head action_2">Название клиента</th>
+                        <th class="table_head action_3">Количество проб</th>
+                        <th class="table_head action_4">Дата(Поступило)</th>
+                        <th class="table_head action_4"><span>
+         Дата(Готово)
+         <i class="small material-icons table_icon">expand_more</i>
+</span></th>
+                        <th class="table_head action_5">Статус</th>
+                        {% if hasGroup %}<th class="table_head">Действие</th>{% endif %}
+                    </tr>
+                </thead>
+
+                <tbody class="table_body">
+                    {% for i in info %}
+                    <tr>
+                        <td>{{ forloop.counter | count:pg }}</td>
+                        <td><a href="/agrohym/{{ i.pk }}" class="table_action" style="
+                                margin-right: 3px;
+                            ">{{ i.nameClient }}</a></td>
+                        <td>{{ i.countSamples }}</td>
+                        <td>{% if i.samples.date %}{{ i.samples.date.day|validDate }}-{{ i.samples.date.month|validDate }}-{{ i.samples.date.year }}{% else %}Дата не выбрана{% endif %}</td>
+                        <td>{{ i.date.day|validDate }}-{{ i.date.month|validDate }}-{{ i.date.year }}</td>
+                        <td>{{ i.status }}</td>
+                        {% if hasGroup %}
+                        <td>
+                            <div>
+                                <a href="/{{update}}/{{ i.pk }}" class="table_action" style="
+                                margin-right: 3px;
+                            ">Update</a>|
+                                <a href="{% url delete i.pk %}" class="table_action table_action_delete modal-trigger">Delete</a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+{% include "pagination.html" with page=info %}
+            {% endblock %}

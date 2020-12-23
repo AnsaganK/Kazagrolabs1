@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+{% block content %}
+<style>
+
+[type="radio"]:not(:checked), [type="radio"]:checked {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+}
+.rad{
+    font-size:1rem;
+}
+.activeCheck{
+    color:#26a69a;
+}
+</style>
+<h2 class="content_title form_add_title">Добавить клиента(корма)</h2>
+<form class="form_add" action="{% url addClient %}" method="POST">
+    {% csrf_token %}
+    <label for="client_name">Имя клиента</label>
+    <input name="name" type="text" class="input" id="client_name" required>
+      <div class="switch">
+    <!--<label style="font-size:1rem">
+        <span>Почвоотбор</span>
+      <input type="checkbox">
+      <span class="lever"></span>
+        <span class="activeCheck">Корма</span>
+    </label>-->
+  </div>
+
+    <button type="submit" class="form_add_btn">Отправить</button>
+</form>
+     <header class="content_header" style="
+    max-width: 830px;
+">
+                <h1 class="content_title header_title">{{ title }}</h1>
+            </header>
+            <table class="prop_table centered" style="
+    max-width: 830px;
+">
+                <thead>
+                    <tr>
+                        <th class="table_head">Номер</th>
+                        <th class="table_head action_2">Название клиента</th>
+                        {% if hasGroup %}<th class="table_head">Действие</th>{% endif %}
+                    </tr>
+                </thead>
+
+                <tbody class="table_body">
+                    {% for i in clients %}
+                    <tr>
+                        <td>{{ forloop.counter}}</td>
+                        <td><a href="{% url 'detailClientCorms' i.pk %}" class="table_action" style="
+                                margin-right: 3px;
+                            ">{{ i.name }}</a></td>
+                        {% if hasGroup %}
+                        <td>
+                            <div>
+                              <!--  <a href="/{{update}}/{{ i.pk }}" class="table_action" style="
+                                margin-right: 3px;
+                            ">Update</a>|-->
+                                <a href="{% url delete i.pk %}" class="table_action table_action_delete modal-trigger">Delete</a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+<script>
+    var x = 0;
+
+function addInput() {
+  var profile = document.getElementById('profile');
+  var div = document.createElement('div');
+  div.id = 'input' + ++x;
+  div.innerHTML = '<input type="text" class="link" placeholder="Ссылка на профиль *"> <input type="text" class="amount" placeholder="Кол-во">';
+  profile.appendChild(div);
+}
+
+function delInput() {
+  var div = document.getElementById('input' + x);
+  div.remove();
+  --x;
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+
+{% block content %}
+
+<h2 class="content_title form_add_title">Изменить данные</h2>
+<form class="form_add" action="{% url update client.pk %}" method="POST">
+    {% csrf_token %}
+    <label for="client_name">Имя клиента</label>
+    <input name="name" type="text" class="input" id="client_name" required value='{{ client.name }}'>
+    <button type="submit" class="form_add_btn">Отправить</button>
+</form>
+
+
+
+
+
+{% endblock %}

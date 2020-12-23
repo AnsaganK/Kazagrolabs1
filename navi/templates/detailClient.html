@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% load mytags %}
+
+{% block content %}
+
+<h2 class="content_title form_add_title">Изменить данные</h2>
+{% if errorZero %}
+<p style="color:red">Вы не можете ввести число меньше суммы всех проб</p>
+{% endif %}
+<form class="form_add" action="{% url update client.pk %}" method="POST">
+    {% csrf_token %}
+    <label for="client_name">Имя клиента</label>
+    <input name="name" type="text" class="input" id="client_name" required value='{{ client.name }}'>
+    <label for="prob_count">Количество проб</label>
+    <input name="countSamples" type="number" class="input" id="prob_count" required value='{{ client.countSamples }}'>
+    <label>Дата</label>
+    <input name="date" type="date" class="input" required value='{% if client.date %}{{client.date.year}}-{{client.date.month|validDate}}-{{client.date.day|validDate}}{% endif %}'>
+    <button type="submit" class="form_add_btn">Отправить</button>
+</form>
+
+<table class="prop_table centered">
+    <thead>
+        <tr>
+            <th class="table_head">Клиент</th>
+            <th class="table_head">Количество проб</th>
+            <th class="table_head">Дата</th>
+            <th class="table_head">Элементы</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr style="    background-color: #bebebe4a;">
+            <td>{{client.name}}</td>
+            <td>{{client.countSamples}}</td>
+            <td>{% if client.date %}{{client.date}}{% else %}Дата не выбрана{% endif %}</td>
+            <td> Всего {{elCount}} элементов  </td>
+            <td> Действие </td>
+        </tr>
+        {% for i in clientSamples %}
+        <tr>
+            <td> --- </td>
+            <td>{{i.count}}</td>
+            <td>{% if i.date %}{{i.date}}{% else %}Дата не выбрана{% endif %}</td>
+            <td>{% for j in i.elements.all %} {{j}} {% endfor %}</td>
+            <td><a href="{% url 'deleteSample' i.pk  %}" class="table_action table_action_delete modal-trigger">Удалить</a></td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if ostatok > 0 %}
+<p>Осталось проб: {{ ostatok }} </p>
+{% endif %}
+{% endblock %}

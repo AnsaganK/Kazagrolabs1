@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% load mytags static %}
+
+{% block content %}
+
+<div id="app">
+    {% if errorMax %}
+        <p style="color:red">Вы выбрали больше чем осталось</p>
+    {% endif %}
+    <h2 class="content_title form_add_title">Добавить пробу</h2>
+    <form class="form_add"  action="{% url 'addSample' %}" method="POST">
+        {% csrf_token %}
+        <label for="client_name">Имя клиента</label>
+                    <select name="client" class="form_add_select" id="client_name" onchange="valDate(this.options[this.selectedIndex].getAttribute('data-d'))">
+                        {% for i in clients %}
+                        {% if i.countSamples|ostatok:i.pk  %}
+                            <option value="{{i.pk}}" id="{{i.countSamples|ostatok:i.pk }}" data-d="{{i.date.year}}-{{i.date.month|validDate}}-{{i.date.day|validDate}}">{{i.name}} | Остаток: {{i.countSamples|ostatok:i.pk }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+        <client></client>
+        <label for="count">Количество</label>
+        <input type="number" min="1" name="count" id="count" required>
+        <label for="">Дата поступления</label>
+        <input type="date" name="date" id="dateS" value="{% if dt %}{{dt.year}}-{{dt.month|validDate}}-{{dt.day|validDate}}{% endif %}">
+          <div class="counter add" onclick="addInput()">+</div>
+      <div class="counter del" onclick="delInput()">-</div>
+        <div id="profile">
+            <div class="element">
+        <label for="elements">Какой элемент</label>
+                    <select name="elements" class="form_add_select" id="elements">
+                        {% for i in elements %}
+                            <option value="{{i.pk}}">{{ i.name }}</option>
+                        {% endfor %}
+                    </select>
+            </div>
+            </div>
+        <button type="submit" class="form_add_btn">Отправить</button>
+    </form>
+</div>
+<script>
+    var x = 0;
+function addInput() {
+if (x<{{elements.all.count}}-1){
+  var profile = document.getElementById('profile');
+  var div = document.createElement('div');
+  div.id = 'input' + ++x;
+  div.classList.add('element');
+  div.innerHTML = '<div><label for="elements">Какой элемент</label><select name="elements" class="form_add_select" id="elements">{% for i in elements %}<option value="{{i.pk}}">{{ i.name }}</option>{% endfor %}</select></div>';
+  profile.appendChild(div);
+}else{
+alert('Вы достигли максимума элементов');
+}
+}
+function delInput() {
+  var div = document.getElementById('input' + x);
+  div.remove();
+  --x;
+}
+</script>
+<script>
+    function valDate(date){
+        var e = document.getElementById('dateS');
+        e.setAttribute('value',date);
+    }
+</script>
+{% endblock %}
+
+
+{% block st %}
+<style>
+    .counter
+{
+    color:white;
+      display: inline-block;
+    width: 50px;
+    font-size:30px;
+    height: 50px;
+    background-color: #6fffa2;
+    border-radius: 100px;
+    line-height: 45px;
+    text-align: center;
+    margin: 10px 0;
+}
+.counter:hover
+{
+  cursor: pointer;
+  user-select:none;
+}
+.del{
+    background-color: #f13c3c;
+}
+.element{
+width:45%;
+}
+select{
+height:35px;
+}
+#profile{
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+}
+</style>
+{% endblock %}
